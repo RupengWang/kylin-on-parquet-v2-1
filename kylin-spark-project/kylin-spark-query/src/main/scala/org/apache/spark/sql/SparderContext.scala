@@ -124,6 +124,12 @@ object SparderContext extends Logging {
         initializingThread = new Thread(new Runnable {
           override def run(): Unit = {
             try {
+              val kylinConf: KylinConfig = KylinConfig.getInstanceFromEnv
+              val sparkConf = new SparkConf()
+              kylinConf.getSparkConf.asScala.foreach {
+                case (k, v) =>
+                  sparkConf.set(k, v)
+              }
               val sparkSession = System.getProperty("spark.local") match {
                 case "true" =>
                   SparkSession.builder
@@ -133,6 +139,7 @@ object SparderContext extends Logging {
                       ext.injectPlannerStrategy(_ => KylinSourceStrategy)
                     }
                     .enableHiveSupport()
+                    .config(sparkConf)
                     .getOrCreate()
                 case _ =>
                   SparkSession.builder
@@ -142,6 +149,7 @@ object SparderContext extends Logging {
                       ext.injectPlannerStrategy(_ => KylinSourceStrategy)
                     }
                     .enableHiveSupport()
+                    .config(sparkConf)
                     .getOrCreate()
               }
               spark = sparkSession
