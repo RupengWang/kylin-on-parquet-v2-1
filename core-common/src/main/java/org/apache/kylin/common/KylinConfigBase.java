@@ -21,6 +21,8 @@ package org.apache.kylin.common;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -2710,6 +2712,22 @@ public abstract class KylinConfigBase implements Serializable {
     //  spark parquet
     public boolean isSparkEngineEnabled() {
         return Boolean.parseBoolean(getOptional("kylin.query.spark-engine.enabled", "true"));
+    }
+
+    public String getLogSparkDriverPropertiesFile() {
+        return getLogPropertyFile("kylin-spark-log4j.properties");
+    }
+
+    private String getLogPropertyFile(String filename) {
+        String parentFolder;
+        if (isDevEnv()) {
+            parentFolder = Paths.get(getKylinHomeWithoutWarn(), "build", "conf").toString();
+        } else if (Files.exists(Paths.get(getKylinHomeWithoutWarn(), "conf", filename))) {
+            parentFolder = Paths.get(getKylinHomeWithoutWarn(), "conf").toString();
+        } else {
+            parentFolder = Paths.get(getKylinHomeWithoutWarn(), "server", "conf").toString();
+        }
+        return parentFolder + File.separator + filename;
     }
 
     public int getQueryPartitionSplitSizeMB() {

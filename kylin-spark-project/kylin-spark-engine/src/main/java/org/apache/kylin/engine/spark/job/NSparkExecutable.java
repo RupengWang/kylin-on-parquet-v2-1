@@ -286,6 +286,9 @@ public class NSparkExecutable extends AbstractExecutable {
             logger.warn("use the InetAddress get local ip failed!", e);
         }
 
+        String log4jConfiguration = "file:" + config.getLogSparkDriverPropertiesFile();
+        log4jConfiguration = "file:/Users/rupeng.wang/Kyligence/Developments/kylin/kylin-parquet/build/conf/kylin-parquet-log4j.properties";
+
         String sparkDriverExtraJavaOptionsKey = "spark.driver.extraJavaOptions";
         StringBuilder sb = new StringBuilder();
         if (sparkConfigOverride.containsKey(sparkDriverExtraJavaOptionsKey)) {
@@ -300,6 +303,7 @@ public class NSparkExecutable extends AbstractExecutable {
             }
         }
 
+        sb.append(String.format(Locale.ROOT, " -Dlog4j.configuration=%s ", log4jConfiguration));
         sb.append(String.format(Locale.ROOT, " -Dspark.driver.log4j.appender.hdfs.File=%s ", sparkDriverHdfsLogPath));
         sb.append(String.format(Locale.ROOT, " -Dspark.driver.rest.server.ip=%s ", serverIp));
         sb.append(String.format(Locale.ROOT, " -Dspark.driver.param.taskId=%s ", getId()));
